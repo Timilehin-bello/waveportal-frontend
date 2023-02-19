@@ -1,34 +1,83 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
+import React, { useEffect, useState } from "react";
+import { ethers } from "ethers";
 import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0);
+const getEthereumObject = () => window.ethereum;
+
+const findAuthorizedAccount = async () => {
+  try {
+    const ethereum = getEthereumObject();
+
+    if (!ethereum) {
+      console.log("Make sure you have Metamask");
+      return null;
+    }
+
+    console.log("We have ethereum Object", ethereum);
+
+    const accounts = await ethereum.request({ method: "eth_accounts" });
+
+    if (accounts.length !== 0) {
+      const account = accounts[0];
+      console.log("Found an authorized account:", account);
+      return account;
+    } else {
+      console.error("No authorized account");
+      return null;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+const App = () => {
+  const [currentAccount, setCurrentAccount] = useState();
+
+  const connectWallet = async () => {
+    try {
+      const ethereum = getEthereumObject();
+      if (!ethereum) {
+        alert("Get MetaMask!");
+        return;
+      }
+
+      const accounts = await ethereum.request({
+        method: "eth_requestAccounts",
+      });
+
+      console.log("Connected", accounts[0]);
+      setCurrentAccount(accounts[0]);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    findAuthorizedAccount().then((account) => {
+      if (account !== null) {
+        setCurrentAccount(account);
+      }
+    });
+  }, []);
 
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+    <div className="mainContainer">
+      <div className="dataContainer">
+        <div className="header">👋 Hey there!</div>
+
+        <div className="bio">
+          My name is Timmy, and I have had the opportunity to work on developing
+          cutting-edge web3 applications, which I find to be a particularly
+          exciting field. I would be honored if those with an Ethereum wallet
+          would connect with me and acknowledge my work with a friendly
+          greeting..
+        </div>
+
+        <button className="waveButton" onClick={connectWallet}>
+          Wave at Me
         </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more.
-      </p>
     </div>
   );
-}
+};
 
 export default App;
