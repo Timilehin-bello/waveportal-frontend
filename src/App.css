@@ -24,6 +24,12 @@
   margin-top: 16px;
 }
 
+.loader {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
 .waveButton {
   cursor: pointer;
   margin-top: 16px;
